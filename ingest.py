@@ -88,9 +88,16 @@ def cover_metadata(text):
 
 
 def parse_date(s):
+    """Parse a cover-page date.
+
+    Posts are inconsistent: "December 02, 2025", "November 13,2019"
+    (no space after the comma) and "5/14/2012" all occur. Normalise the
+    missing space first, then try each format.
+    """
     if not s:
         return None
-    for fmt in ("%B %d, %Y", "%b %d, %Y", "%m/%d/%Y"):
+    s = re.sub(r",(?=\d)", ", ", s.strip())
+    for fmt in ("%B %d, %Y", "%b %d, %Y", "%m/%d/%Y", "%m/%d/%y"):
         try:
             return datetime.strptime(s, fmt).date().isoformat()
         except ValueError:
